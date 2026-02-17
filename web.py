@@ -1,5 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qsl, urlparse
+from sitio import html as content 
 
 
 class WebRequestHandler(BaseHTTPRequestHandler):
@@ -13,22 +14,16 @@ class WebRequestHandler(BaseHTTPRequestHandler):
         return dict(parse_qsl(self.url().query))
 
     def do_GET(self):
-        if self.ruta() == '/':
-            archivo_html = open('home.html')
-            html = archivo_html.read()
+        ruta = self.ruta()
+        if ruta  in content:  
+            html = content[ruta]
             self.send_response(200)
             self.send_header("Content-Type", "text/html")
             self.end_headers()
-            self.wfile.write(html)
+            self.wfile.write(html.encode(encoding="utf-8"))
        
-        
-        if self.valida_autor():
-            self.send_response(200)
-            self.send_header("Content-Type", "text/html")
-            self.end_headers()
-            self.wfile.write(self.get_html(self.url().path, self.query_data()).encode("utf-8"))
         else:
-            self.send_error(404, 'El autor no existe')
+            self.send_error(404, 'El contenido no existe')
 
 
 
